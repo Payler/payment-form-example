@@ -1,0 +1,109 @@
+
+
+.payler-data {
+  margin: 0;
+  clear: both;
+  border-bottom: 1px solid $link-color;
+  padding-bottom: 20px;
+  
+  .items {
+    @include clearfix;
+  }
+  
+  .item {
+    display: block;
+    float: none;
+    width: 100%;
+    margin: 0; 
+    
+    & > dt {
+      //display: none; 
+      padding-left: 10px;
+      font-size: 14px;
+      line-height: 20px;
+      float: left;
+      clear: left;
+    }
+    
+    & > dd {
+      float: right;
+      margin: 0; 
+      font-size: 14px;
+      padding-right: 10px;
+    }
+    
+    .summ > * {
+      text-align: right;
+      padding-right: 10px;
+      padding-left: 0;
+    }
+  }
+}
+
+
+@media screen and (min-width: 595px) {
+  .payler-data {
+    margin: 0px; 
+    padding: 0 10px 20px 10px;
+    
+    .item {
+      float: left;
+      width: 33.333333%;
+    }
+    .item > dt {
+      display: block; 
+      float: none;
+      clear: none;
+    }
+    .item > dd {
+      float: none; 
+      padding-left: 10px;
+      padding-right: 0;
+    }
+  }
+}
+@media screen and (min-width: 760px) {
+  .payler-data {
+     border-bottom: 0; 
+     padding: 0 60px 20px 40px;
+     margin-bottom: 40px;
+  }
+}
+
+@media screen and (min-width: 1010px) {
+  .payler-data {
+    float: left;
+    width: 25%;
+    padding: 0 20px;
+    
+    .item {
+      float: none;
+      width: auto;
+      text-align: right;
+      margin-bottom: 20px;
+      
+      & > dd {
+        font-size: 16px; 
+      }
+      .summ > * {
+        padding: 0;
+      }
+      .summ > dd {
+        font-size: 20px; 
+      }
+      
+    }
+  }
+
+}
+@media screen and (min-width: 1200px) {
+  .payler-data {
+    padding-right: 4%;
+    padding-top: 20px;
+    
+    .item > dt {
+      font-size: 14px; 
+    }
+  }
+
+}

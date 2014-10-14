@@ -1,0 +1,32 @@
+.payler-footer {
+  margin: 40px 10px 40px 10px;
+  font-size: 14px;
+  text-align: center;
+  padding-bottom: 80px;
+}
+.payler-footer .copyright {
+  margin-bottom: 10px;
+
+}
+.payler-footer .contacts {
+  text-align: center;
+}
+
+@media screen and (min-width: 590px) {
+  .payler-footer {
+    margin: 40px 60px 20px 60px;
+    text-align: left;
+    padding-bottom: 20px;
+  }
+  
+  .payler-footer .copyright {
+    width: 40%;
+    float: left;
+  }
+  
+  .payler-footer .contacts {
+    width: 60%;
+    float: left;
+    text-align: right;
+  }
+}

@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Payler</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    window.params_card = {
+      card_number: '{card_number}',
+      card_holder: '{card_holder}',
+      expired_month: '{expired_month}',
+      expired_year: '{expired_year}'
+    }
+  </script>
+</head>
+<body>
+
+
+<div class="payler-error-popup hide"><div></div> <span class="close">✕</span></div>
+
+  
+<form method="post" action="Submit" novalidate autocomplete="on">
+<input type="hidden" name="info" value="{info}">
+<input type="hidden" name="order_id" value="{orderid}">
+<input name="amount" value="{amount}" type="hidden">
+<input type="hidden" id="error_param" data-error-param="{error_param}" data-error-value="{error}" />
+<input type="hidden" name="card_number" id="PaylerCardFormatted">
+<input type="hidden" name="expired_month">
+<input type="hidden" name="expired_year">
+
+<div class="payler-logo">
+  <a href="{merchant_url}" target="_blank"><img src="images/logo-sample.png" /></a>
+</div>
+<div class="payler-security">
+  <span class="label">
+    <span class="sprite lock"></span>
+    <strong>Безопасный платеж</strong><br>
+    Онлайн платеж банковской картой защищен<br> 
+    128-битным шифрованием по&nbsp;технологии&nbsp;<a href="http://www.thawte.su/" target="_blank">Thawte</a>
+  </span>
+</div>
+
+
+<div class="rows">
+<div class="payler-data">
+  <div class="items">
+    <dl class="item merch">
+      <dt>{product}</dt>
+      <dd></dd>
+    </dl>
+    <dl class="item invoice">
+      <dt>Заказ</dt>
+      <dd>№ {orderid}</dd>
+    </dl>
+    <dl class="item summ">
+      <dt>Сумма платежа</dt>
+      <dd><strong>{amount_format}&nbsp;руб.</strong></dd>
+    </dl> 
+  </div>
+</div>
+
+<div class="payler-form">
+  <div class="payler-form-group">
+    <div class="label"><label for="PaylerCardNum">Номер карты:</label></div>
+    <div class="items">
+      <input type="tel" class="cc-number trigger-help" id="PaylerCardNum" pattern="\d*" x-autocompletetype="cc-number" placeholder="">
+      
+      <div class="sprite help-popup popup1"></div>
+    </div>
+  </div>
+  
+  <div class="payler-form-group">
+    <div class="label"><label for="PaylerExpiredMonth">Срок действия:</label></div>
+    <div class="items">
+        <i class="note">Месяц/Год</i>
+        <input type="tel" class="cc-exp trigger-help" id="PaylerExpired" pattern="\d*" x-autocompletetype="cc-exp" placeholder="MM/YY" required maxlength="9">
+      <div class="sprite help-popup popup2"></div>
+    </div>
+  </div>
+  
+  <div class="payler-form-group">
+    <div class="label"><label for="PaylerCardholder">Имя владельца:</label></div>
+    <div class="items">
+      <input type="text" id="PaylerCardholder" class="trigger-help" maxlength="26" name="card_holder" placeholder="">
+      <div class="sprite help-popup popup3"></div>
+    </div>
+  </div>
+
+  <div class="payler-form-group">
+    <div class="label"><label for="PaylerCode">Код CVC/CVV:</label></div>
+    <div class="items">
+      <input type="tel" id="PaylerCode" class="cc-cvc trigger-help" name="secure_code" pattern="\d*" x-autocompletetype="cc-csc" required  autocomplete="off">
+      <div class="sprite help-popup popup4"></div>
+      <div class="sprite help-popup popup5" style="display: none"></div>
+    </div>
+    
+  </div>  
+</div>
+
+<div class="payler-aside">
+  <div class="languages" style="display: none;">
+    <span class="rus active"><span class="sprite rus"></span> на русском</span>
+    <span class="eng"><a href="form-en.html"><span class="sprite eng"></span> on english</a></span>
+  </div>
+  <div class="cards">
+    <p>Вы оплачиваете картой, выпущенной</p>
+    <div class="items">
+      <span class="sprite mastercard"></span>
+      <span class="sprite visa"></span><br>
+    </div>
+  </div>
+</div>
+</div>
+  
+  
+<div class="payler-action">
+  <div class="payler-action-button">
+    <input type="submit" class="button" id="PaylerPostButton" value="Оплатить" />
+  </div>
+
+  <p>Совершая ввод карточных данных, убедитесь что ознакомились с&nbsp;<a data-popup="paylerPopup">политикой безопасности</a> нашего платежного шлюза <a href="http://payler.com/" target="_blank">Payler</a>.
+Мы&nbsp;несем ответственность за&nbsp;безопасную обработку платежа в&nbsp;соответствии со&nbsp;стандартами
+безопасности международных платежных систем (<a href="http://payler.com/PCIDSS.pdf" target="_blank">Сертификат PCI DSS 2.0</a>).
+  </p>
+</div>
+
+<div class="payler-footer">
+  <div class="rows">
+    <div class="copyright">&copy; 2014 <strong>Payler</strong></div>
+    <div class="contacts">При возникновении вопросов звоните&nbsp;<a href="tel:+74953745874">+7 (495) 374-58-74</a> или&nbsp;пишите&nbsp;<a href="mailto: hello@payler.com">hello@payler.com</a></div>
+  </div>
+</div>
+      
+</form>
+
+
+<div id="paylerPopup">
+  <div id="paylerFade" data-dismiss="paylerPopup"></div>
+  <div id="paylerPopupBody">
+    
+    <p>Payler гарантирует безопасность ваших персональных данных. Предоставляемая Вами персональная информация является конфиденциальной и не подлежит разглашению. Данные Вашей кредитной карты передаются только в зашифрованном виде по закрытым банковским сетям, имеющим наивысший уровень надежности с применением технологии шифрования SSL и не сохраняются на Web-сервере.</p>
+    
+    <p>Все операции с платежными картами происходят в соответствии с требованиями международных платежных систем VISA International, Master Card и др. в соответствии с международными стандартом безопасности  PCI DSS 2.0.
+В случае если банк, выпустивший Вашу карту поддерживает технологию дополнительной защиты 3D-Secure, и Ваша карта также поддерживает данную технологию, то при проведении операции, вы будете перенаправлены на страницу Банка-эмитента для ввода подтверждающего кода безопасности.</p>
+  
+    <div class="button-group"><button class="button active" data-dismiss="paylerPopup">Закрыть</button></div>
+  
+  </div>
+</div>
+
+<div id="paylerLoader">
+  <div id="paylerSpinner"></div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="js/min/jquery.payment.min.js"></script>
+<script src="js/min/jquery.mask.min.js"></script>
+<script src="js/min/spin.min.js"></script>
+<script src="js/min/main.min.js"></script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

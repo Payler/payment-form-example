@@ -1,0 +1,95 @@
+
+.sprite {
+  background-image: url(../images/sprite-payler.png);
+  background-position: top left;
+  background-size: 520px 620px;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+}
+
+.sprite.lock {
+  background-position: -50px -10px;
+  width: 40px;
+  height: 40px;
+}
+.sprite.rus {
+  background-position: -119px -18px;
+  width: 22px;
+  height: 23px;
+}
+.sprite.eng {
+  background-position: -179px -18px;
+  width: 22px;
+  height: 23px;
+}
+
+.sprite.popup1 {
+  background-position: -340px 0px;
+  width: 175px;
+  height: 120px;
+}
+.sprite.popup2 {
+  background-position: -340px -120px;
+  width: 175px;
+  height: 120px;
+}
+.sprite.popup3 {
+  background-position: -340px -240px;
+  width: 175px;
+  height: 120px;
+}
+.sprite.popup4 {
+  background-position: -340px -360px;
+  width: 175px;
+  height: 120px;
+}
+.sprite.popup5 {
+  background-position: -340px -480px;
+  width: 175px;
+  height: 120px;
+}
+
+
+.sprite.visa {
+  background-position: -161px -68px;
+  width: 58px;
+  height: 44px;
+}
+.sprite.mastercard {
+  background-position: -44px -69px;
+  width: 52px;
+  height: 44px;
+}
+.sprite.amex {
+  background-position: -109px -67px;
+  width: 41px;
+  height: 44px;
+}
+.sprite.dinersclub {
+  background-position: -224px -68px;
+  width: 52px;
+  height: 44px;
+}
+.sprite.jcb { 
+  background-position: -292px -68px;
+  width: 35px;
+  height: 44px;
+}
+
+
+.sprite.visa.active {
+  background-position: -161px -128px;
+}
+.sprite.mastercard.active {
+  background-position: -44px -130px;
+}
+.sprite.amex.active {
+  background-position: -109px -128px;
+}
+.sprite.dinersclub.active {
+  background-position: -224px -129px;
+}
+.sprite.jcb.active { 
+  background-position: -292px -129px;
+}

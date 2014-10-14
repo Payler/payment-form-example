@@ -1,0 +1,62 @@
+.payler-aside {
+  margin: 0;
+  padding-top: 0px;
+  text-align: center;
+}
+.payler-aside .languages {
+  line-height: 20px;
+  font-size: 14px; 
+}
+.payler-aside .languages span {
+  display: inline-block;
+  vertical-align: top;
+}
+.payler-aside .languages .active {
+  color: #aaa;
+}
+.payler-aside .languages > span {
+  margin: 0 10px;
+}
+.payler-aside .cards p {
+  margin: 20px 0 10px 0;
+  font-size: 14px;
+  color: #777;
+}
+.payler-aside .cards br {
+  display: none;
+}
+
+@media screen and (min-width: 760px) {
+  .payler-aside {
+    float: left;
+    width: 30%;
+    padding-right: 60px;
+    text-align: left;
+  }
+  .payler-aside .languages > span {
+    display: block;
+    margin: 0 0 20px 0;
+    padding-left: 20px;
+    text-align: left;
+  }
+  .payler-aside .cards {
+    margin-top: 30px; 
+    padding-left: 20px;
+  }
+  .payler-aside .cards br {
+     display: block;
+  }
+}
+@media screen and (min-width: 1010px) {
+  .payler-aside {
+    float: left;
+    width: 25%;
+    padding-left: 0px;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .payler-aside {
+    padding-left: 2%;
+  }
+}
+

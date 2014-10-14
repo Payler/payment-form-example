@@ -1,0 +1,67 @@
+
+.payler-logo {
+   width: 280px;
+   text-align: center;
+   margin: 20px auto;
+  
+  
+   img {
+      max-width: 100%;
+      max-height: 100px;
+      display: inline-block;
+      border-width: 0;
+   }
+}
+
+
+.payler-security {
+  margin: 20px auto;
+  text-align: center;
+  
+  .sprite {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0px;   
+  }
+  
+  .label {
+    position: relative;
+    display: inline-block;
+    text-align: left;
+    padding-left: 40px;
+    font-size: 13px;
+  }
+}
+
+
+@media screen and (min-width: 595px) {
+   .payler-logo {
+     text-align: left; 
+     margin: 0px;
+     padding: 20px;
+     float: left;
+   }
+   .payler-security {
+      float: right;
+      padding-right: 20px;
+      width: 290px;
+   }
+}
+
+@media screen and (min-width: 595px) {
+  .payler-logo {
+    padding: 20px 60px; 
+  }
+}
+@media screen and (min-width: 760px) {
+  .payler-logo {
+    width: 300px;
+    margin-bottom: 40px;
+    margin-top: 20px;
+  }
+  .payler-security {
+    margin-top: 40px; 
+    width: 400px;
+  }
+}

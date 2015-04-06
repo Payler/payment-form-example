@@ -1,0 +1,7 @@
+msgctxt "Languages::text_payler_notice"
+msgid "Use the following URL in the Payler account settings<br />-&nbsp;<u>payment notification</u>: <b>[result_url]</b>"
+msgstr "Use the following URL in the Payler account settings<br />-&nbsp;<u>payment notification</u>: <b>[result_url]</b>"
+
+msgctxt "Languages::text_payler_payment_for_order"
+msgid "Payment for order # [order_id] at site [site_url]"
+msgstr "Payment for order # [order_id] at site [site_url]"

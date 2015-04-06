@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mgrdata>
+    <metadata name="company.paymethod.edit_payler.php" type="form">
+        <form>
+            <field name="name">
+                <input type="text" name="name" empty="no"/>
+            </field>
+			<field name="ptype">
+				<select name="ptype"/>
+			</field>
+            <field name="autodelete">
+                <input type="text" name="autodelete"/>
+                <desc name="days"/>
+            </field>
+            <field name="minamount">
+                <input type="text" name="minamount"/>
+            </field>
+            <field name="priority">
+                <input type="text" name="priority"/>
+            </field>
+			<field name="commission">
+				<input type="text" name="commission"/>
+				<desc name="percent"/>
+			</field>
+            <field name="checkpayer">
+                <input type="checkbox" name="checkpayer"/>
+                <desc name="checkpayerd"/>
+            </field>
+			<field name="key">
+                <input type="text" name="key" empty="no"/>
+            </field>
+            <field name="posturl">
+                <input type="text" name="posturl" empty="no"/>
+            </field>
+        </form>
+        <jscript>
+            document.frm.func.value = 'company.paymethod.edit';
+        </jscript>
+    </metadata>
+    <metadata name="credit.pay.payler.php" type="form">
+        <form extokmsg="yes" event="yes">
+            <field name="amount">
+                <input type="text" name="amount" readonly="yes"/>
+            </field>
+        </form>
+        <jscript>
+        function frm_event() {
+            var id = frm.elid.value;
+            window.open('/mancgi/paylerpayment.php?elid='+id);
+            return true;
+        }
+        </jscript>
+    </metadata>
+    <lang name="ru">
+        <messages name="company.paymethod.edit">
+            <msg name="payler.php">Payler</msg>
+        </messages>
+        <messages name="company.paymethod">
+            <msg name="module_payler.php">Payler</msg>
+        </messages>
+        <messages name="company.paymethod.edit_payler.php">
+            <msg name="hint_name">Название типа метода оплаты</msg>
+            <msg name="days">дней</msg>
+            <msg name="autodelete">Период удаления неоплаченных платежей</msg>
+            <msg name="hint_autodelete">Укажите период автоматического удаления неоплаченных платежей</msg>
+            <msg name="hint_default">Укажите данные необходимые для взаимодействия с платежной системой, а также другие параметры, применяемые к платежам</msg>
+            <msg name="hint_minamount">Минимальная сумма для осуществления платежа</msg>	  
+            <msg name="minamount">Минимальная сумма платежа</msg>
+            <msg name="title">Параметры</msg>
+            <msg name="priority">Приоритет</msg>
+			<msg name="percent">процентов</msg>
+            <msg name="hint_priority">Методы оплаты будут упорядочены в соответствии с приоритетом. Чем выше приоритет, тем метод оплаты будет выше в выпадающем списке.</msg>
+			<msg name="commission">Комисcия</msg>
+			<msg name="hint_commission">Комиссия платежной системы. Если указана комиссия, то после зачисления платежа на указанный процент будет произведен расход</msg>
+			<msg name="pperson">Частное лицо</msg>
+			<msg name="psoleproprietor">Индивидуальный предприниматель</msg>
+			<msg name="pcompany">Компания</msg>
+			<msg name="ptype">Статус плательщика</msg>
+			<msg name="hint_ptype">Укажите статус плательщиков, для которых будет доступен данный метод оплаты</msg>
+            <msg name="null">Любой</msg>
+            <msg name="checkpayerd">Проверять заполненность свойств плательщика</msg>
+            <msg name="hint_checkpayer">Опция включает проверку заполненности свойств плательщика и отказ в оплате в случае наличия пустых полей</msg>
+            <msg name="hint_default">Заполните поля формы</msg>
+            <msg name="hint_country">Определите язык подтверждения платежа по стране</msg>
+			<msg name="key">Ключ</msg>
+            <msg name="posturl">API URL</msg>
+			<msg name="hint_posturl">Адрес к которому осуществляется доступ средствами API</msg>
+        </messages>
+        <messages name="credit.pay.payler.php">
+            <msg name="msg_extokmsg">Оплата</msg>
+            <msg name="amount">Сумма</msg>
+            <msg name="hint_amount">Итоговая сумма к оплате</msg>
+            <msg name="title">Payler</msg>
+            <msg name="hint_default">Форма оплаты через Payler</msg>        
+        </messages>
+    </lang>
+    <lang name="en">
+        <messages name="company.paymethod.edit_payler.php">
+            <msg name="payler.php">Payler</msg>
+        </messages>
+        <messages name="company.paymethod">
+            <msg name="module_payler.php">Payler</msg>
+        </messages>
+        <messages name="company.paymethod.edit_payler.php">
+            <msg name="hint_name">Payment method name</msg>
+            <msg name="days">days</msg>
+            <msg name="autodelete">The period of removal of unpaid fees</msg>
+            <msg name="hint_autodelete">Enter the auto deletion of unpaid fees</msg>
+            <msg name="hint_default">Enter the data necessary for the interaction with the payment system, as well as other parameters that apply to payments</msg>
+            <msg name="hint_minamount">The minimum amount for payment</msg>	  
+            <msg name="minamount">The minimum payment</msg>
+            <msg name="title">Options</msg>
+            <msg name="priority">Priority</msg>
+			<msg name="percent">percent</msg>
+            <msg name="hint_priority">Methods of payment will be arranged according to priority. The higher the priority, the method of payment will be higher than in the drop-down list.</msg>
+			<msg name="commission">Commission</msg>
+			<msg name="hint_commission">Commission payment system. If the Commission pointed out, after the transfer of the payment to a specified percentage rate will be made</msg>
+			<msg name="pperson">Private individual</msg>
+			<msg name="psoleproprietor">Solo Entrepreneur</msg>
+			<msg name="pcompany">Company</msg>
+			<msg name="ptype">Status of the payer</msg>
+			<msg name="hint_ptype">Specify the status of payers, which will be available this method of payment</msg>
+            <msg name="null">Any</msg>
+            <msg name="checkpayerd">Check the occupancy of properties payer</msg>
+            <msg name="hint_checkpayer">The option includes checking the occupancy of properties payer and refusal to pay in case of empty fields</msg>
+            <msg name="hint_default">Fill in the form</msg>
+			<msg name="key">Key</msg>
+            <msg name="posturl">API URL</msg>
+			<msg name="hint_posturl">API URL</msg>
+        </messages>
+        <messages name="credit.pay.payler.php">
+            <msg name="msg_extokmsg">Payment</msg>
+            <msg name="amount">Amount</msg>
+            <msg name="hint_amount">Total amount</msg>
+            <msg name="title">Payler</msg>
+            <msg name="hint_default">Pay by credit card via Payler</msg>        
+        </messages>
+    </lang>    
+</mgrdata>

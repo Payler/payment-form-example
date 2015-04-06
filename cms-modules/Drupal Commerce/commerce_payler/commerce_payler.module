@@ -1,0 +1,211 @@
+<?php
+
+/*
+ * The MIT License
+ *
+ * Copyright 2014 Payler LLC
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_payler_menu() {
+  $items = array();
+
+  $items['payler/callback'] = array(
+    'page callback' => 'commerce_payler_callback',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_payler_commerce_payment_method_info() {
+    return array(
+        //Payment method system name
+        'commerce_payler' => array(
+            //Payment method name shown at admin part of site
+            'title' => t('Payler'),
+            //Payment method name shown at checkout
+            //Optional. Can contain html
+            'display_title' => t('Payler'),
+            //Payment method description. Optinonal.
+            'description' => t('Pay by credit card'),
+            'active' => TRUE,
+            'terminal' => FALSE,
+            'offsite' => TRUE,
+            'offsite_autoredirect' => TRUE,
+        ),
+    );
+}
+
+/**
+ * Payment method callback: settings form.
+ */
+function commerce_payler_settings_form($settings = NULL) {
+    $form = array();
+    $settings = (array)$settings + array(
+        'test_mode' => 1,
+        'secret_key' => '',
+        'information' => '',
+    );
+ 
+    $form['test_mode'] = array(
+        '#type' => 'checkbox',
+        '#title' => t('Test mode'),
+        '#description' => t('Check to enable test mode'),
+        '#default_value' => $settings['test_mode'],
+    );
+  
+    $form['secret_key'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Secret key'),
+        '#description' => t('Input secret key'),
+        '#default_value' => $settings['secret_key'],
+    );
+    
+    $form['information'] = array(
+        '#type' => 'textarea',
+        '#title' => t('Information'),
+        '#description' => t('Information you would like to be shown to users when they select this payment method.'),
+        '#default_value' => $settings['information'],
+    );
+ 
+    return $form;
+}
+
+/**
+ * Payment method callback: payment redirect form.
+ */
+function commerce_payler_redirect_form($form, &$form_state, $order, $payment_method) {
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+    $host = ($payment_method['settings']['test_mode'] ? "sandbox" : "secure");
+    $url = "https://" . $host . ".payler.com/gapi/StartSession";
+    $data = array (
+        'key' => $payment_method['settings']['secret_key'],
+        'type' => 'OneStep',
+        'order_id' => $order->order_id.'|'.time(),
+        'amount' => $order_wrapper->commerce_order_total->amount->value(),
+    );
+    $session_data = CurlSendPost($data, $url);
+    $session_id = $session_data['session_id'];
+    
+    $form['#action'] = "https://" . $host . ".payler.com/gapi/Pay";
+
+    $form['session_id'] = array(
+        '#type' => 'hidden',
+        '#value' => $session_id,
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => t('Pay'),
+    );
+
+    return $form;
+}
+
+/*
+ * 
+ */
+function commerce_payler_callback () {
+    $info = $_GET['order_id'];
+    $order_info = explode("|", $info);
+    $order_id = $order_info[0];
+    
+    $order = commerce_order_load($order_id);
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+    $amount = $order_wrapper->commerce_order_total->amount->value();
+    //$currency_code = $order_wrapper->commerce_order_total->currency_code->value();
+    $payment_method = commerce_payment_method_instance_load($order->data['payment_method']);
+    
+    $host = ($payment_method['settings']['test_mode'] ? "sandbox" : "secure");
+    $url = "https://" . $host . ".payler.com/gapi/GetStatus";
+    $data = array (
+        'key' => $payment_method['settings']['secret_key'],
+        'order_id' => $info,
+    );
+    $result = CurlSendPost($data, $url);
+    
+    if ($result['status'] == 'Charged') {
+        $paid_amount = $result['amount'];
+        $transaction = commerce_payment_transaction_new('commerce_payler', $order->order_id);
+        $transaction->instance_id = $payment_method['instance_id'];
+        $transaction->amount = $paid_amount;
+        //$transaction->currency_code = $currency_code;
+        $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
+        $transaction->message = t('The payment has been succesfully completed.');
+        if ($payment_method['settings']['test_mode']) {
+            $transaction->message .= ' (Test mode)';
+        }
+        commerce_payment_transaction_save($transaction);
+
+        //Redirect
+        $redirect_key = $order->data['payment_redirect_key'];
+        drupal_goto('checkout/'.$order_id.'/payment/return/'.$redirect_key);        
+    } else {
+        commerce_payment_redirect_pane_previous_page($order);
+    }
+}
+
+/**
+ * @desc Send POST-request using curl.
+ *
+ * @param $data An array of data sent
+ * @result An associative array of data returned
+ */
+function CurlSendPost ($data, $url) {	
+    $headers = array(
+        'Content-type: application/x-www-form-urlencoded',
+        'Cache-Control: no-cache',
+        'charset="utf-8"',
+    );
+
+    $data = http_build_query($data, '', '&');
+
+    $options = array (
+        CURLOPT_URL => $url,
+        CURLOPT_POST => 1,
+        CURLOPT_RETURNTRANSFER => 1,
+        CURLOPT_TIMEOUT => 45,
+        CURLOPT_VERBOSE => 0,
+        CURLOPT_HTTPHEADER => $headers,
+        CURLOPT_POSTFIELDS => $data,            
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_SSL_VERIFYPEER => 0,
+    );
+
+    $ch = curl_init();
+    curl_setopt_array($ch, $options);
+    $json = curl_exec($ch);
+    if ($json == false) {
+        die ('Curl error: ' . curl_error($ch) . '<br>');
+    }
+    // Convert JSON into associative array
+    $result = json_decode($json, TRUE);
+    curl_close($ch);
+
+    return $result;
+}

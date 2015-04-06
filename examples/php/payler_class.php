@@ -20,7 +20,7 @@ class Payler {
             'charset="utf-8"',
 	);
         
-        $data = http_build_query($data);
+        $data = http_build_query($data, '', '&');
 
         $options = array (
             CURLOPT_URL => $this->url,

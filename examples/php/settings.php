@@ -7,4 +7,4 @@ $key = "TestMerchantBM";
 //Платежный пароль
 $password = "123";
 //Тип платежа
-$type = "Pay";
+$type = "OneStep";

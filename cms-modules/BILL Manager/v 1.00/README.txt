@@ -5,3 +5,5 @@ paylerpayment.php в /usr/local/ispmgr/cgi
 paylerresult.php в /usr/local/ispmgr/cgi
 
 Возврат на сайт/mancgi/paylerresult.php
+
+Нужно будет дать права на выполнение файла /usr/local/ispmgr/sbin/mgrctl

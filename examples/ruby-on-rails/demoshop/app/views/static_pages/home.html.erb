@@ -1,0 +1,31 @@
+<%
+require 'securerandom'
+
+provide(:title, 'Home')
+
+provide(:server_sandbox, "https://sandbox.payler.com")
+provide(:order_id, SecureRandom.uuid)
+provide(:product, 'Велосипед для программиста')
+
+%>
+
+<p>На этой странице можно начать процедуру оплаты через тестовый сервера Пэйлера.</p>
+
+<p>Если при нажатии на кнопку "Оплатить" вы получаете ошибку "Ранее создан заказ с указанным идентификатором: xxx", то нужно вернуться обратно и ввести другой id заказа.  Можно просто обновить страницу для генерации случайного id.</p>
+
+<h1>Сервер sandbox</h1>
+  <form method="post" action="checkout/start">
+    <%= token_tag nil %>
+    <input type="hidden" name="server" value="<%= yield(:server_sandbox) %>"/>
+    <input type="hidden" name="type" value="Pay"/>
+    <table>
+      <tr><td>Сервер</td><td>                     <input type="text" size="40" disabled name="server" value="<%= yield(:server_sandbox) %>"/>
+      <tr><td>Merchant Key</td><td>               <input type="text" size="40" name="key" value="TestMerchantBM" /></td></tr>
+      <tr><td>Сумма в копейках</td><td>           <input type="text" size="40" name="amount" value="30000" /></td></tr>
+      <tr><td>id заказа</td><td>                  <input type="text" size="40" name="order_id" value="<%= yield(:order_id) %>"/></td></tr>
+      <tr><td>Описание товара или услуги</td><td> <input type="text" size="40" name="product" value="<%= yield(:product) %>"/></td></tr>
+      <tr><td></td><td><input type="submit" value="Оплатить" /></td></tr>
+    </table>
+  </form>
+
+<hr />

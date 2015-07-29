@@ -10,91 +10,91 @@ if (!class_exists ('vmPSPlugin')) {
 
 
 class Payler {
-    const PAYLER_STATUS_CHARGED = 'Charged';
+	const PAYLER_STATUS_CHARGED = 'Charged';
 
-    function __construct($debug_mode, $merchant_id='') {
-        $this->debug_mode = $debug_mode;
-        $this->merchant_id = $merchant_id;
-	$host = ($debug_mode ? "sandbox" : "secure");
-        $this->base_url = "https://" . $host . ".payler.com/gapi/";
-    }
-    function CurlSendPost ($data) {	
-        $headers = array(
-            'Content-type: application/x-www-form-urlencoded',
-            'Cache-Control: no-cache',
-            'charset="utf-8"',
-	);
-        $data = http_build_query($data, '', '&');
-        $options = array (
-            CURLOPT_URL => $this->url,
-            CURLOPT_POST => 1,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_TIMEOUT => 45,
-            CURLOPT_VERBOSE => 0,
-            CURLOPT_HTTPHEADER => $headers,
-            CURLOPT_POSTFIELDS => $data,            
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_SSL_VERIFYPEER => 0,
-        );
-        
-        $ch = curl_init();
-        curl_setopt_array($ch, $options);
-	$json = curl_exec($ch);
-	curl_close($ch);
-        if ($json == false) {
-            die ('Curl error: ' . curl_error($ch) . '<br>');
-        }
-        //Преобразуем JSON в ассоциативный массив
-        $result = json_decode($json, TRUE);
-	return $result;
-    }    
-    public function POSTtoGateAPI ($data, $method) {
-        $this->url = $this->base_url.$method;
-        $result = $this->CurlSendPost($data);
-        return $result;
-    }
-    function Pay ($session_id) {
-        $this->url = $this->base_url."Pay";
-        $result = '<html><head><title>Redirection</title></head><body><div style="margin: auto; text-align: center;">'
-        		. '<form method ="POST" action="'.$this->url.'" name="payler_form_redirect">'
-                . '<input type="hidden" name="session_id" '
-                . 'value="'.$session_id.'">'
-                . '<input type="submit" name="submit" value="Оплатить заказ">'
-                . '</form></div><script type="text/javascript">document.payler_form_redirect.submit();</script></body></html>';
-        return $result;
-    }
-
-    function Status($order_id) {
-	    $this->url = $this->base_url."GetStatus";
-	    $data = array (
-		    'key' => $this->merchant_id,
-		    'order_id' => $order_id
+	function __construct($debug_mode, $merchant_id='') {
+		$this->debug_mode = $debug_mode;
+		$this->merchant_id = $merchant_id;
+		$host = ($debug_mode ? "sandbox" : "secure");
+		$this->base_url = "https://" . $host . ".payler.com/gapi/";
+	}
+	function CurlSendPost ($data) {
+		$headers = array(
+			'Content-type: application/x-www-form-urlencoded',
+			'Cache-Control: no-cache',
+			'charset="utf-8"',
+		);
+		$data = http_build_query($data, '', '&');
+		$options = array (
+			CURLOPT_URL => $this->url,
+			CURLOPT_POST => 1,
+			CURLOPT_RETURNTRANSFER => 1,
+			CURLOPT_TIMEOUT => 45,
+			CURLOPT_VERBOSE => 0,
+			CURLOPT_HTTPHEADER => $headers,
+			CURLOPT_POSTFIELDS => $data,
+			CURLOPT_SSL_VERIFYHOST => 0,
+			CURLOPT_SSL_VERIFYPEER => 0,
 		);
 
-	    $result = $this->CurlSendPost($data);
-    	    return $result['status'];
-    }
-
-    function paymentResponseReceived ($data) {
-	$order_number = $data['on'];
-	if (empty($order_number)) {
-		$this->plugin->debugLog($order_number, 'getOrderNumber not correct' . $data['R'], 'debug', false);
-		return FALSE;
+		$ch = curl_init();
+		curl_setopt_array($ch, $options);
+		$json = curl_exec($ch);
+		curl_close($ch);
+		if ($json == false) {
+			die ('Curl error: ' . curl_error($ch) . '<br>');
+		}
+		//Преобразуем JSON в ассоциативный массив
+		$result = json_decode($json, TRUE);
+		return $result;
 	}
-	if (!($virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number))) {
-		return FALSE;
+	public function POSTtoGateAPI ($data, $method) {
+		$this->url = $this->base_url.$method;
+		$result = $this->CurlSendPost($data);
+		return $result;
+	}
+	function Pay ($session_id) {
+		$this->url = $this->base_url."Pay";
+		$result = '<html><head><title>Redirection</title></head><body><div style="margin: auto; text-align: center;">'
+			. '<form method ="POST" action="'.$this->url.'" name="payler_form_redirect">'
+			. '<input type="hidden" name="session_id" '
+			. 'value="'.$session_id.'">'
+			. '<input type="submit" name="submit" value="Оплатить заказ">'
+			. '</form></div><script type="text/javascript">document.payler_form_redirect.submit();</script></body></html>';
+		return $result;
 	}
 
-	$orderModel = VmModel::getModel('orders');
-	$order = $orderModel->getOrder($virtuemart_order_id);
-	$success = ($this->Status($order_number) == self::PAYLER_STATUS_CHARGED);
+	function Status($order_id) {
+		$this->url = $this->base_url."GetStatus";
+		$data = array (
+			'key' => $this->merchant_id,
+			'order_id' => $order_id
+		);
 
-	if ($success) {
-            $cart = VirtueMartCart::getCart();
-            $cart->emptyCart();
+		$result = $this->CurlSendPost($data);
+		return $result['status'];
 	}
-	return $success;
-    }
+
+	function paymentResponseReceived ($data) {
+		$order_number = $data['on'];
+		if (empty($order_number)) {
+			$this->plugin->debugLog($order_number, 'getOrderNumber not correct' . $data['R'], 'debug', false);
+			return FALSE;
+		}
+		if (!($virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number))) {
+			return FALSE;
+		}
+
+		$orderModel = VmModel::getModel('orders');
+		$order = $orderModel->getOrder($virtuemart_order_id);
+		$success = ($this->Status($order_number) == self::PAYLER_STATUS_CHARGED);
+
+		if ($success) {
+			$cart = VirtueMartCart::getCart();
+			$cart->emptyCart();
+		}
+		return $success;
+	}
 
 }
 
@@ -135,7 +135,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	function plgVmConfirmedOrder($cart, $order)
 	{
 		if (!($method = $this->getVmPluginMethod($order['details']['BT']->virtuemart_paymentmethod_id))) {
-	   		return null; // Another method was selected, do nothing
+			return null; // Another method was selected, do nothing
 		}
 		$this->merchant_id = $method->merchant_id;
 		$this->secret_word = $method->secret_word;
@@ -143,9 +143,9 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$this->payment_type = 'OneStep';
 
 		if (!$this->selectedThisElement($method->payment_element)) {
-	    	return false;
+			return false;
 		}
-		
+
 		$session = JFactory::getSession();
 		$return_context = $session->getId();
 		$this->_debug = $method->debug;
@@ -155,15 +155,15 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		if (!class_exists('VirtueMartModelOrders')) {
 			require(JPATH_VM_ADMINISTRATOR.DS.'models'.DS.'orders.php');
 		}
-		
+
 		if (!class_exists('VirtueMartModelCurrency')) {
 			require(JPATH_VM_ADMINISTRATOR.DS.'models'.DS.'currency.php');
 		}
 
 		if (!class_exists('TableVendors')) {
-    		require(JPATH_VM_ADMINISTRATOR.DS.'table'.DS.'vendors.php');
+			require(JPATH_VM_ADMINISTRATOR.DS.'table'.DS.'vendors.php');
 		}
-		
+
 		$vendorModel = VmModel::getModel('Vendor');
 		$vendorModel->setId(1);
 		$vendor = $vendorModel->getVendor();
@@ -174,13 +174,13 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$paymentCurrency = CurrencyDisplay::getInstance($method->payment_currency);
 		$totalInPaymentCurrency = round($paymentCurrency->convertCurrencyTo($method->payment_currency, $order['details']['BT']->order_total, false), 2);
 		$cd = CurrencyDisplay::getInstance($cart->pricesCurrency);
-		
+
 		if ($totalInPaymentCurrency <= 0) {
 			vmInfo(JText::_('PLG_ONPAY_VM2_ERROR_1'));
 			return false;
 		}
 
-		
+
 		if (empty($this->merchant_id)) {
 			vmInfo(JText::_('PLG_ONPAY_VM2_ERROR_2'));
 			return false;
@@ -192,11 +192,11 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$amount = $order['details']['BT']->order_total * 100;
 		$product = "Оплата заказа №".$order_number;
 		$data = array (
-		    'key' => $this->merchant_id,
-		    'type' => $this->payment_type,
-		    'order_id' => $order_number,
-		    'amount' => $amount,
-		    'product' => $product
+			'key' => $this->merchant_id,
+			'type' => $this->payment_type,
+			'order_id' => $order_number,
+			'amount' => $amount,
+			'product' => $product
 		);
 
 		$dbValues['order_number'] = $order_number;
@@ -210,7 +210,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$dbValues['tax_id'] = $method->tax_id;
 
 		$this->storePSPluginInternalData($dbValues);
-		
+
 		$return_url = urlencode(substr(JURI::root(false, ''), 0, -1).JROUTE::_('index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on='.$order_number.'&pm='.$virtuemart_paymentmethod_id.'&Itemid='.JRequest::getInt('Itemid'), false));
 		$fail_url = urlencode(substr(JURI::root(false, ''), 0, -1).JROUTE::_('index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on='.$order_number.'&pm='.$virtuemart_paymentmethod_id.'&Itemid='.JRequest::getInt('Itemid'), false));
 		$price_final = $method->price_final ? 'true' : 'false';
@@ -220,7 +220,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$user_email = $order['details']['BT']->email;
 		$user_phone = $order['details']['BT']->phone_1;
 		$design = $method->design;
-		
+
 		$lang = '';
 		if ($method->lang) {
 			$lang = '&ln='.$method->lang;
@@ -229,13 +229,13 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$session_data = $payler->POSTtoGateAPI($data, "StartSession");
 		$session_id = $session_data['session_id'];
 		$html = $payler->Pay($session_id);
-		
+
 		$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number);
 		$modelOrder = VmModel::getModel('orders');
 		$order['customer_notified'] = 1;
 		$order['order_status'] = $method->status_pending;
 		$modelOrder->updateStatusForOneOrder($virtuemart_order_id, $order, true);
-		
+
 		$cart->_confirmDone = false;
 		$cart->_dataValidated = false;
 		$cart->setCartIntoSession();
@@ -531,27 +531,27 @@ class plgVmPaymentPayler extends vmPSPlugin {
 
 	//функция переводит число в нужный формат
 	function to_float($sum)
-	{ 
+	{
 		$sum = round(floatval($sum), 2);
 		$sum = sprintf('%01.2f', $sum);
-		
+
 		if (substr($sum, -1) == '0') {
 			$sum = sprintf('%01.1f', $sum);
 		}
-		
+
 		return $sum;
 	}
-	
+
 	function getCosts(VirtueMartCart $cart, $method, $cart_prices)
 	{
 		if (preg_match('/%$/', $method->cost_percent_total)) {
-	    	$cost_percent_total = substr($method->cost_percent_total, 0, -1);
+			$cost_percent_total = substr($method->cost_percent_total, 0, -1);
 		} else {
-	    	$cost_percent_total = $method->cost_percent_total;
+			$cost_percent_total = $method->cost_percent_total;
 		}
 
 		return $method->cost_per_transaction + ($cart_prices['salesPrice'] * $cost_percent_total * 0.01);
-    }
+	}
 
 
 
@@ -642,50 +642,48 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	 *
 	 */
 	function plgVmOnPaymentResponseReceived(&$html) {
-		// JFactory::getApplication()->enqueueMessage('plgVmOnPaymentResponseReceived called '.$html.'!');
-                if (!class_exists('VirtueMartCart')) {
-                        require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
-                }
-                if (!class_exists('shopFunctionsF')) {
-                        require(VMPATH_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
-                }
-                if (!class_exists('VirtueMartModelOrders')) {
-                        require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
-                }
+		if (!class_exists('VirtueMartCart')) {
+			require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
+		}
+		if (!class_exists('shopFunctionsF')) {
+			require(VMPATH_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
+		}
+		if (!class_exists('VirtueMartModelOrders')) {
+			require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
+		}
 
-                VmConfig::loadJLang('com_virtuemart_orders', TRUE);
+		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
 
-                $virtuemart_paymentmethod_id = vRequest::getInt('pm', 0);
+		$virtuemart_paymentmethod_id = vRequest::getInt('pm', 0);
 
-		// JFactory::getApplication()->enqueueMessage('$virtuemart_paymentmethod_id = '.$virtuemart_paymentmethod_id.'!');
-                if (!($this->_currentMethod = $this->getVmPluginMethod($virtuemart_paymentmethod_id))) {
-                        return NULL; // Another method was selected, do nothing
-                }
+		if (!($this->_currentMethod = $this->getVmPluginMethod($virtuemart_paymentmethod_id))) {
+			return NULL; // Another method was selected, do nothing
+		}
 		$this->merchant_id = $this->_currentMethod->merchant_id;
 		$this->debug_mode  = intval($this->_currentMethod->debug_mode);
 		$this->payment_type = 'OneStep';
-		
-                if (!$this->selectedThisElement($this->_currentMethod->payment_element)) {
-                        return NULL;
-                }
-                $paybox_data = vRequest::getGet();
+
+		if (!$this->selectedThisElement($this->_currentMethod->payment_element)) {
+			return NULL;
+		}
+		$paybox_data = vRequest::getGet();
 		$payler = new Payler($this->debug_mode, $this->merchant_id);
 		$order_paid_success = $payler->paymentResponseReceived($paybox_data);
 		if($order_paid_success) {
 			$html = 'Заказ оплачен успешно';
-		        $virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($paybox_data['on']);
+			$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($paybox_data['on']);
 			$modelOrder = VmModel::getModel('orders');
-		        $order['customer_notified'] = 0;
+			$order['customer_notified'] = 0;
 			$order['order_status'] = $this->_currentMethod->status_success;
 			$modelOrder->updateStatusForOneOrder($virtuemart_order_id, $order, false);
 		} else {
 			$html = 'Заказ не оплачен. Повторите попытку позже';
 		}
 		vRequest::setVar('display_title', false);
-                vRequest::setVar('html', $html);
-                return true;
+		vRequest::setVar('html', $html);
+		return true;
 	}
-	 
+
 }
 
 // No closing tag

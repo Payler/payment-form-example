@@ -170,7 +170,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$virtuemart_paymentmethod_id = $order['details']['BT']->virtuemart_paymentmethod_id;
 
 		$payler = new Payler($this->debug_mode, $this->merchant_id);
-		$amount = $order['details']['BT']->order_total * 100;
+		$amount = round($order['details']['BT']->order_total * 100);
 		$product = "Оплата заказа №".$order_number;
 		$data = array (
 			'key' => $this->merchant_id,

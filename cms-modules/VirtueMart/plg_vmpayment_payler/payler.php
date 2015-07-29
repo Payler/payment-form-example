@@ -103,7 +103,6 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	function __construct (& $subject, $config) {
 		parent::__construct ($subject, $config);
 		$this->_loggable = TRUE;
-		$this->tableFields = array_keys ($this->getTableSQLFields ());
 		$this->_tablepkey = 'id';
 		$this->_tableId = 'id';
 		$varsToPush = $this->getVarsToPush ();
@@ -111,25 +110,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	}
 
 	public function getVmPluginCreateTableSQL () {
-
-		return $this->createTableSQL ('Payment Payler Table');
-	}
-
-	function getTableSQLFields () {
-		$SQLfields = array(
-			'id'                          => 'int(1) UNSIGNED NOT NULL AUTO_INCREMENT',
-			'virtuemart_order_id'         => 'int(1) UNSIGNED',
-			'order_number'                => 'char(64)',
-			'virtuemart_paymentmethod_id' => 'mediumint(1) UNSIGNED',
-			'payment_name'                => 'varchar(5000)',
-			'payment_order_total'         => 'decimal(15,5) NOT NULL DEFAULT \'0.00000\'',
-			'payment_currency'            => 'char(3)',
-			'email_currency'              => 'char(3)',
-			'cost_per_transaction'        => 'decimal(10,2)',
-			'cost_percent_total'          => 'decimal(10,2)',
-			'tax_id'                      => 'smallint(1)'
-		);
-		return $SQLfields;
+		return NULL;
 	}
 
 	function plgVmConfirmedOrder($cart, $order)
@@ -176,13 +157,13 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$cd = CurrencyDisplay::getInstance($cart->pricesCurrency);
 
 		if ($totalInPaymentCurrency <= 0) {
-			vmInfo(JText::_('PLG_ONPAY_VM2_ERROR_1'));
+			vmInfo(JText::_('PLG_PAYLER_SUMM_EQL_ZERO'));
 			return false;
 		}
 
 
 		if (empty($this->merchant_id)) {
-			vmInfo(JText::_('PLG_ONPAY_VM2_ERROR_2'));
+			vmInfo(JText::_('PLG_PAYLER_INCORRECT_SETUP'));
 			return false;
 		}
 
@@ -198,18 +179,6 @@ class plgVmPaymentPayler extends vmPSPlugin {
 			'amount' => $amount,
 			'product' => $product
 		);
-
-		$dbValues['order_number'] = $order_number;
-		$dbValues['payment_name'] = $this->renderPluginName($method, $order);
-		$dbValues['virtuemart_paymentmethod_id'] = $cart->virtuemart_paymentmethod_id;
-		$dbValues['onpay_custom'] = $return_context;
-		$dbValues['cost_per_transaction'] = $method->cost_per_transaction;
-		$dbValues['cost_percent_total'] = $method->cost_percent_total;
-		$dbValues['payment_currency'] = $method->payment_currency;
-		$dbValues['payment_order_total'] = $totalInPaymentCurrency;
-		$dbValues['tax_id'] = $method->tax_id;
-
-		$this->storePSPluginInternalData($dbValues);
 
 		$return_url = urlencode(substr(JURI::root(false, ''), 0, -1).JROUTE::_('index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on='.$order_number.'&pm='.$virtuemart_paymentmethod_id.'&Itemid='.JRequest::getInt('Itemid'), false));
 		$fail_url = urlencode(substr(JURI::root(false, ''), 0, -1).JROUTE::_('index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on='.$order_number.'&pm='.$virtuemart_paymentmethod_id.'&Itemid='.JRequest::getInt('Itemid'), false));

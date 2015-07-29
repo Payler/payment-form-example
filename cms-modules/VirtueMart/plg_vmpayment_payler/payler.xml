@@ -11,7 +11,7 @@
     <files>
         <filename plugin="payler">payler.php</filename>
         <filename>payler_notify.php</filename>
-        <filename>payler_logo.gif</filename>
+        <filename>payler_logo.jpg</filename>
         <filename>index.html</filename>
         <folder>language</folder>
     </files>

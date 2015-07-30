@@ -102,15 +102,45 @@ class plgVmPaymentPayler extends vmPSPlugin {
 
 	function __construct (& $subject, $config) {
 		parent::__construct ($subject, $config);
+
+		$jlang = JFactory::getLanguage();
+		$jlang->load('plg_vmpayment_payler', JPATH_ADMINISTRATOR, NULL, TRUE);
+
 		$this->_loggable = TRUE;
+		$this->tableFields = array_keys($this->getTableSQLFields());
 		$this->_tablepkey = 'id';
 		$this->_tableId = 'id';
-		$varsToPush = $this->getVarsToPush ();
+		$varsToPush = array(
+			'merchant_id' => array('', 'char'),
+			'merchant_password' => array('', 'char'),
+			'status_pending' => array('', 'char'),
+			'status_success' => array('', 'char'),
+			'status_canceled' => array('', 'char'),
+		);
+
 		$this->setConfigParameterable ($this->_configTableFieldName, $varsToPush);
 	}
 
 	public function getVmPluginCreateTableSQL () {
-		return NULL;
+
+		return $this->createTableSQL ('Payment Payler Table');
+	}
+
+	function getTableSQLFields () {
+		$SQLfields = array(
+			'id'                          => 'int(1) UNSIGNED NOT NULL AUTO_INCREMENT',
+			'virtuemart_order_id'         => 'int(1) UNSIGNED',
+			'order_number'                => 'char(64)',
+			'virtuemart_paymentmethod_id' => 'mediumint(1) UNSIGNED',
+			'payment_name'                => 'varchar(5000)',
+			'payment_order_total'         => 'decimal(15,5) NOT NULL DEFAULT \'0.00000\'',
+			'payment_currency'            => 'char(3)',
+			'email_currency'              => 'char(3)',
+			'cost_per_transaction'        => 'decimal(10,2)',
+			'cost_percent_total'          => 'decimal(10,2)',
+			'tax_id'                      => 'smallint(1)'
+		);
+		return $SQLfields;
 	}
 
 	function plgVmConfirmedOrder($cart, $order)
@@ -496,6 +526,21 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	function plgVmSetOnTablePluginParamsPayment ($name, $id, &$table) {
 
 		return $this->setOnTablePluginParams ($name, $id, $table);
+	}
+
+	function _getMerchantID($method)
+	{
+		return $method->merchant_id;
+	}
+
+	function _getMerchantPassword($method)
+	{
+		return $method->merchant_password;
+	}
+
+	function _getDebugMode($method)
+	{
+		return $method->debug_mode;
 	}
 
 	//функция переводит число в нужный формат

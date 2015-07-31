@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension version="2.5" type="plugin" group="vmpayment" method="upgrade">
+    <name>Payler</name>
+    <creationDate>Jule 19 2015</creationDate>
+    <author>Payler</author>
+    <authorUrl>http://payler.com</authorUrl>
+    <copyright>Copyright (C) 2015 Payler. All rights reserved.</copyright>
+    <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+    <version>1.0.0</version>
+    <description>Payler payment plugin</description>
+    <files>
+        <filename plugin="payler">payler.php</filename>
+        <filename>payler_notify.php</filename>
+        <filename>payler_logo.jpg</filename>
+        <filename>index.html</filename>
+        <folder>language</folder>
+    </files>
+    <vmconfig>
+        <fields name="params">
+            <fieldset name="payment" addfieldpath="/administrator/components/com_virtuemart/fields">
+                <field name="merchant_id" type="text" label="VMPAYMENT_PAYLER_MERCHANT" description="VMPAYMENT_PAYLER_MERCHANT_DESC"/>
+                <field name="merchant_password" type="text" label="VMPAYMENT_PAYLER_PASSWORD" description="VMPAYMENT_PAYLER_PASSWORD_DESC"/>
+                <field name="debug_mode" type="radio" default="1" label="VMPAYMENT_PAYLER_DEBUG" description="VMPAYMENT_PAYLER_DEBUG_DESC">
+                    <option value="1">VMPAYMENT_PAYLER_DEBUG_1</option>
+                    <option value="0">VMPAYMENT_PAYLER_DEBUG_0</option>
+                </field>
+                <field name="status_pending" type="vmorderstate" scope="com_virtuemart" default="U" label="VMPAYMENT_PAYLER_STATUS_PENDING" description="VMPAYMENT_PAYLER_STATUS_PENDING_DESC"/>
+                <field name="status_success" type="vmorderstate" scope="com_virtuemart" default="U" label="VMPAYMENT_PAYLER_STATUS_SUCCESS" description="VMPAYMENT_PAYLER_STATUS_SUCCESS_DESC"/>
+                <field name="status_canceled" type="vmorderstate" scope="com_virtuemart" default="U" label="VMPAYMENT_PAYLER_STATUS_CANCELED" description="VMPAYMENT_PAYLER_STATUS_CANCELED_DESC"/>
+            </fieldset>
+        </fields>
+    </vmconfig>
+</extension>

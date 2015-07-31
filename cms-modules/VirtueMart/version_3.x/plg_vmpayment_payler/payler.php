@@ -76,9 +76,9 @@ class Payler {
 	}
 
 	function paymentResponseReceived ($data) {
-		$order_number = $data['on'];
+		$order_number = $data;
 		if (empty($order_number)) {
-			$this->plugin->debugLog($order_number, 'getOrderNumber not correct' . $data['R'], 'debug', false);
+			$this->plugin->debugLog($order_number, 'getOrderNumber not correct' . $data, 'debug', false);
 			return FALSE;
 		}
 		if (!($virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number))) {
@@ -635,12 +635,12 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		if (!$this->selectedThisElement($this->_currentMethod->payment_element)) {
 			return NULL;
 		}
-		$paybox_data = vRequest::getGet();
+		$order_id = vRequest::getGet()['order_id'];
 		$payler = new Payler($this->debug_mode, $this->merchant_id);
-		$order_paid_success = $payler->paymentResponseReceived($paybox_data);
+		$order_paid_success = $payler->paymentResponseReceived($order_id);
 		if($order_paid_success) {
 			$html = 'Заказ оплачен успешно';
-			$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($paybox_data['on']);
+			$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_id);
 			$modelOrder = VmModel::getModel('orders');
 			$order['customer_notified'] = 0;
 			$order['order_status'] = $this->_currentMethod->status_success;

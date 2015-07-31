@@ -13,7 +13,7 @@ class Payler {
 	const PAYLER_STATUS_CHARGED = 'Charged';
 
 	function __construct($debug_mode, $merchant_id='') {
-		$this->debug_mode = $debug_mode;
+		$this->sandbox = $debug_mode;
 		$this->merchant_id = $merchant_id;
 		$host = ($debug_mode ? "sandbox" : "secure");
 		$this->base_url = "https://" . $host . ".payler.com/gapi/";
@@ -76,9 +76,9 @@ class Payler {
 	}
 
 	function paymentResponseReceived ($data) {
-		$order_number = $data['on'];
+		$order_number = $data;
 		if (empty($order_number)) {
-			$this->plugin->debugLog($order_number, 'getOrderNumber not correct' . $data['R'], 'debug', false);
+			$this->plugin->debugLog($order_number, 'getOrderNumber not correct', 'debug', false);
 			return FALSE;
 		}
 		if (!($virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_number))) {
@@ -107,12 +107,10 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$jlang->load('plg_vmpayment_payler', JPATH_ADMINISTRATOR, NULL, TRUE);
 
 		$this->_loggable = TRUE;
-		$this->tableFields = array_keys($this->getTableSQLFields());
-		$this->_tablepkey = 'id';
-		$this->_tableId = 'id';
 		$varsToPush = array(
 			'merchant_id' => array('', 'char'),
 			'merchant_password' => array('', 'char'),
+			'sandbox' => array(0, 'int'),
 			'status_pending' => array('', 'char'),
 			'status_success' => array('', 'char'),
 			'status_canceled' => array('', 'char'),
@@ -126,31 +124,14 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		return $this->createTableSQL ('Payment Payler Table');
 	}
 
-	function getTableSQLFields () {
-		$SQLfields = array(
-			'id'                          => 'int(1) UNSIGNED NOT NULL AUTO_INCREMENT',
-			'virtuemart_order_id'         => 'int(1) UNSIGNED',
-			'order_number'                => 'char(64)',
-			'virtuemart_paymentmethod_id' => 'mediumint(1) UNSIGNED',
-			'payment_name'                => 'varchar(5000)',
-			'payment_order_total'         => 'decimal(15,5) NOT NULL DEFAULT \'0.00000\'',
-			'payment_currency'            => 'char(3)',
-			'email_currency'              => 'char(3)',
-			'cost_per_transaction'        => 'decimal(10,2)',
-			'cost_percent_total'          => 'decimal(10,2)',
-			'tax_id'                      => 'smallint(1)'
-		);
-		return $SQLfields;
-	}
-
 	function plgVmConfirmedOrder($cart, $order)
 	{
 		if (!($method = $this->getVmPluginMethod($order['details']['BT']->virtuemart_paymentmethod_id))) {
 			return null; // Another method was selected, do nothing
 		}
 		$this->merchant_id = $method->merchant_id;
-		$this->secret_word = $method->secret_word;
-		$this->debug_mode  = intval($method->debug_mode);
+		$this->secret_word = $method->merchant_password;
+		$this->sandbox  = intval($method->sandbox);
 		$this->payment_type = 'OneStep';
 
 		if (!$this->selectedThisElement($method->payment_element)) {
@@ -159,7 +140,6 @@ class plgVmPaymentPayler extends vmPSPlugin {
 
 		$session = JFactory::getSession();
 		$return_context = $session->getId();
-		$this->_debug = $method->debug;
 		$order_number = $order['details']['BT']->order_number;
 		$this->logInfo('plgVmConfirmedOrder order number: '.$order_number, 'message');
 
@@ -199,7 +179,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 
 		$virtuemart_paymentmethod_id = $order['details']['BT']->virtuemart_paymentmethod_id;
 
-		$payler = new Payler($this->debug_mode, $this->merchant_id);
+		$payler = new Payler($this->sandbox, $this->merchant_id);
 		$amount = round($order['details']['BT']->order_total * 100);
 		$product = "Оплата заказа №".$order_number;
 		$data = array (
@@ -291,42 +271,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	 *
 	 */
 	protected function checkConditions ($cart, $method, $cart_prices) {
-
-		$this->convert_condition_amount($method);
-		$amount = $this->getCartAmount($cart_prices);
-		$address = (($cart->ST == 0) ? $cart->BT : $cart->ST);
-
-
-		//vmdebug('Payler checkConditions',  $amount, $cart_prices['salesPrice'],  $cart_prices['salesPriceCoupon']);
-		$amount_cond = ($amount >= $method->min_amount AND $amount <= $method->max_amount
-			OR
-			($method->min_amount <= $amount AND ($method->max_amount == 0)));
-		if (!$amount_cond) {
-			return FALSE;
-		}
-		$countries = array();
-		if (!empty($method->countries)) {
-			if (!is_array ($method->countries)) {
-				$countries[0] = $method->countries;
-			} else {
-				$countries = $method->countries;
-			}
-		}
-
-		// probably did not gave his BT:ST address
-		if (!is_array ($address)) {
-			$address = array();
-			$address['virtuemart_country_id'] = 0;
-		}
-
-		if (!isset($address['virtuemart_country_id'])) {
-			$address['virtuemart_country_id'] = 0;
-		}
-		if (count ($countries) == 0 || in_array ($address['virtuemart_country_id'], $countries) ) {
-			return TRUE;
-		}
-
-		return FALSE;
+		return TRUE;
 	}
 
 
@@ -343,8 +288,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	 *
 	 */
 	function plgVmOnStoreInstallPaymentPluginTable ($jplugin_id) {
-
-		return $this->onStoreInstallPluginTable ($jplugin_id);
+		return NULL;
 	}
 
 	/**
@@ -360,7 +304,16 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	 */
 	public function plgVmOnSelectCheckPayment (VirtueMartCart $cart, &$msg) {
 
-		return $this->OnSelectCheck ($cart);
+		if (!$this->selectedThisByMethodId($cart->virtuemart_paymentmethod_id)) {
+			return null; // Another method was selected, do nothing
+		}
+
+		if (!($this->_currentMethod = $this->getVmPluginMethod($cart->virtuemart_paymentmethod_id))) {
+			return FALSE;
+		}
+
+		$this->OnSelectCheck ($cart);
+		return true;
 	}
 
 	/**
@@ -398,18 +351,16 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		return $this->onSelectedCalculatePrice ($cart, $cart_prices, $cart_prices_name);
 	}
 
-	function plgVmgetPaymentCurrency ($virtuemart_paymentmethod_id, &$paymentCurrencyId) {
+	function plgVmgetPaymentCurrency($virtuemart_paymentmethod_id, &$paymentCurrencyId) {
 
-		if (!($method = $this->getVmPluginMethod ($virtuemart_paymentmethod_id))) {
+		if (!($this->_currentMethod = $this->getVmPluginMethod($virtuemart_paymentmethod_id))) {
 			return NULL; // Another method was selected, do nothing
 		}
-		if (!$this->selectedThisElement ($method->payment_element)) {
+		if (!$this->selectedThisElement($this->_currentMethod->payment_element)) {
 			return FALSE;
 		}
-		$this->getPaymentCurrency ($method);
-
-		$paymentCurrencyId = $method->payment_currency;
-		return;
+		$this->getPaymentCurrency($this->_currentMethod);
+		$paymentCurrencyId = $this->_currentMethod->payment_currency;
 	}
 
 	/**
@@ -422,9 +373,8 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	 * @return null if no plugin was found, 0 if more then one plugin was found,  virtuemart_xxx_id if only one plugin is found
 	 *
 	 */
-	function plgVmOnCheckAutomaticSelectedPayment (VirtueMartCart $cart, array $cart_prices = array(), &$paymentCounter) {
-
-		return $this->onCheckAutomaticSelected ($cart, $cart_prices, $paymentCounter);
+	function plgVmOnCheckAutomaticSelectedPayment(VirtueMartCart $cart, array $cart_prices = array(), &$paymentCounter) {
+		return $this->onCheckAutomaticSelected($cart, $cart_prices, $paymentCounter);
 	}
 
 	/**
@@ -520,27 +470,13 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		return $this->onShowOrderPrint ($order_number, $method_id);
 	}
 
-	function plgVmDeclarePluginParamsPaymentVM3( &$data) {
-		return $this->declarePluginParams('payment', $data);
-	}
-	function plgVmSetOnTablePluginParamsPayment ($name, $id, &$table) {
+	function plgVmDeclarePluginParamsPayment($name, $id, &$data) {
 
-		return $this->setOnTablePluginParams ($name, $id, $table);
+		return $this->declarePluginParams('payment', $name, $id, $data);
 	}
 
-	function _getMerchantID($method)
-	{
-		return $method->merchant_id;
-	}
-
-	function _getMerchantPassword($method)
-	{
-		return $method->merchant_password;
-	}
-
-	function _getDebugMode($method)
-	{
-		return $method->debug_mode;
+	function plgVmSetOnTablePluginParamsPayment($name, $id, &$table) {
+		return $this->setOnTablePluginParams($name, $id, $table);
 	}
 
 	//функция переводит число в нужный формат
@@ -657,35 +593,35 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	 */
 	function plgVmOnPaymentResponseReceived(&$html) {
 		if (!class_exists('VirtueMartCart')) {
-			require(VMPATH_SITE . DS . 'helpers' . DS . 'cart.php');
+			require(JPATH_VM_SITE . DS . 'helpers' . DS . 'cart.php');
 		}
 		if (!class_exists('shopFunctionsF')) {
-			require(VMPATH_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
+			require(JPATH_VM_SITE . DS . 'helpers' . DS . 'shopfunctionsf.php');
 		}
 		if (!class_exists('VirtueMartModelOrders')) {
-			require(VMPATH_ADMIN . DS . 'models' . DS . 'orders.php');
+			require(JPATH_VM_ADMINISTRATOR . DS . 'models' . DS . 'orders.php');
 		}
 
 		VmConfig::loadJLang('com_virtuemart_orders', TRUE);
 
-		$virtuemart_paymentmethod_id = vRequest::getInt('pm', 0);
+		$virtuemart_paymentmethod_id = JRequest::getInt('pm', 0);
 
 		if (!($this->_currentMethod = $this->getVmPluginMethod($virtuemart_paymentmethod_id))) {
 			return NULL; // Another method was selected, do nothing
 		}
 		$this->merchant_id = $this->_currentMethod->merchant_id;
-		$this->debug_mode  = intval($this->_currentMethod->debug_mode);
+		$this->sandbox  = intval($this->_currentMethod->sandbox);
 		$this->payment_type = 'OneStep';
 
 		if (!$this->selectedThisElement($this->_currentMethod->payment_element)) {
 			return NULL;
 		}
-		$paybox_data = vRequest::getGet();
-		$payler = new Payler($this->debug_mode, $this->merchant_id);
-		$order_paid_success = $payler->paymentResponseReceived($paybox_data);
+		$order_id = JRequest::getString("order_id", "");
+		$payler = new Payler($this->sandbox, $this->merchant_id);
+		$order_paid_success = $payler->paymentResponseReceived($order_id);
 		if($order_paid_success) {
 			$html = 'Заказ оплачен успешно';
-			$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($paybox_data['on']);
+			$virtuemart_order_id = VirtueMartModelOrders::getOrderIdByOrderNumber($order_id);
 			$modelOrder = VmModel::getModel('orders');
 			$order['customer_notified'] = 0;
 			$order['order_status'] = $this->_currentMethod->status_success;
@@ -693,8 +629,8 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		} else {
 			$html = 'Заказ не оплачен. Повторите попытку позже';
 		}
-		vRequest::setVar('display_title', false);
-		vRequest::setVar('html', $html);
+		JRequest::setVar('display_title', false);
+		JRequest::setVar('html', $html);
 		return true;
 	}
 

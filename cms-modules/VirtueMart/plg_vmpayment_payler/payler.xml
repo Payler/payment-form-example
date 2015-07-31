@@ -23,12 +23,12 @@
     <params>
         <param name="merchant_id" type="text" label="VMPAYMENT_PAYLER_MERCHANT" description="VMPAYMENT_PAYLER_MERCHANT_DESC"/>
         <param name="merchant_password" type="text" label="VMPAYMENT_PAYLER_PASSWORD" description="VMPAYMENT_PAYLER_PASSWORD_DESC"/>
-        <param name="debug_mode" type="radio" default="1" label="VMPAYMENT_PAYLER_DEBUG" description="VMPAYMENT_PAYLER_DEBUG_DESC">
+        <param class="sandbox" name="sandbox" type="radio" default="1" label="VMPAYMENT_PAYLER_DEBUG" description="VMPAYMENT_PAYLER_DEBUG_DESC">
             <option value="1">VMPAYMENT_PAYLER_DEBUG_1</option>
             <option value="0">VMPAYMENT_PAYLER_DEBUG_0</option>
         </param>
         <param name="status_pending" type="vmorderstate" scope="com_virtuemart" default="U" label="VMPAYMENT_PAYLER_STATUS_PENDING" description="VMPAYMENT_PAYLER_STATUS_PENDING_DESC"/>
-        <param name="status_success" type="vmorderstate" scope="com_virtuemart" default="U" label="VMPAYMENT_PAYLER_STATUS_SUCCESS" description="VMPAYMENT_PAYLER_STATUS_SUCCESS_DESC"/>
-        <param name="status_canceled" type="vmorderstate" scope="com_virtuemart" default="U" label="VMPAYMENT_PAYLER_STATUS_CANCELED" description="VMPAYMENT_PAYLER_STATUS_CANCELED_DESC"/>
+        <param name="status_success" type="vmorderstate" scope="com_virtuemart" default="C" label="VMPAYMENT_PAYLER_STATUS_SUCCESS" description="VMPAYMENT_PAYLER_STATUS_SUCCESS_DESC"/>
+        <param name="status_canceled" type="vmorderstate" scope="com_virtuemart" default="X" label="VMPAYMENT_PAYLER_STATUS_CANCELED" description="VMPAYMENT_PAYLER_STATUS_CANCELED_DESC"/>
     </params>
 </extension>

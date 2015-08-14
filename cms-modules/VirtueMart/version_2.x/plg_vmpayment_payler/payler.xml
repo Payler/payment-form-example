@@ -6,7 +6,7 @@
     <authorUrl>http://payler.com</authorUrl>
     <copyright>Copyright (C) 2015 Payler. All rights reserved.</copyright>
     <license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
-    <version>1.0.0</version>
+    <version>1.0.3</version>
     <description>Payler payment plugin</description>
     <files>
         <filename plugin="payler">payler.php</filename>

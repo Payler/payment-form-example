@@ -107,6 +107,10 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$jlang->load('plg_vmpayment_payler', JPATH_ADMINISTRATOR, NULL, TRUE);
 
 		$this->_loggable = TRUE;
+		$this->tableFields = array_keys($this->getTableSQLFields());
+		$this->_tablepkey = 'id';
+		$this->_tableId = 'id';
+
 		$varsToPush = array(
 			'merchant_id' => array('', 'char'),
 			'merchant_password' => array('', 'char'),
@@ -121,8 +125,25 @@ class plgVmPaymentPayler extends vmPSPlugin {
 
 	public function getVmPluginCreateTableSQL () {
 
-		return $this->createTableSQL ('Payment Payler Table');
+		return $this->createTableSQL('Payment Payler Table');
 	}
+
+	function getTableSQLFields () {
+			$SQLfields = array(
+					'id'                          => 'int(1) UNSIGNED NOT NULL AUTO_INCREMENT',
+					'virtuemart_order_id'         => 'int(1) UNSIGNED',
+					'order_number'                => 'char(64)',
+					'virtuemart_paymentmethod_id' => 'mediumint(1) UNSIGNED',
+					'payment_name'                => 'varchar(5000)',
+					'payment_order_total'         => 'decimal(15,5) NOT NULL DEFAULT \'0.00000\'',
+					'payment_currency'            => 'char(3)',
+					'email_currency'              => 'char(3)',
+					'cost_per_transaction'        => 'decimal(10,2)',
+					'cost_percent_total'          => 'decimal(10,2)',
+					'tax_id'                      => 'smallint(1)'
+					);
+			return $SQLfields;
+ 	}
 
 	function plgVmConfirmedOrder($cart, $order)
 	{
@@ -288,7 +309,10 @@ class plgVmPaymentPayler extends vmPSPlugin {
 	 *
 	 */
 	function plgVmOnStoreInstallPaymentPluginTable ($jplugin_id) {
-		return NULL;
+        if ($jplugin_id != $this->_jid) {
+            return FALSE;
+        }
+        return $this->onStoreInstallPluginTable ($jplugin_id);
 	}
 
 	/**

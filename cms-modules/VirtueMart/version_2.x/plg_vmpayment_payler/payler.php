@@ -198,6 +198,19 @@ class plgVmPaymentPayler extends vmPSPlugin {
 			return false;
 		}
 
+		$email_currency = $this->getEmailCurrency($this->_currentMethod);
+		$payment_name = $this->renderPluginName($this->_currentMethod, $order);
+		// Prepare data that should be stored in the database
+		$dbValues['order_number'] = $order['details']['BT']->order_number;
+		$dbValues['payment_name'] = $payment_name;
+		$dbValues['virtuemart_paymentmethod_id'] = $cart->virtuemart_paymentmethod_id;
+		$dbValues['payment_currency'] = $this->_currentMethod->payment_currency;
+		$dbValues['email_currency'] = $email_currency;
+		$dbValues['payment_order_total'] = $order['details']['BT']->order_total;
+		$dbValues['tax_id'] = $this->_currentMethod->tax_id;
+		$this->storePSPluginInternalData($dbValues);
+		VmConfig::loadJLang('com_virtuemart_orders',TRUE);
+
 		$virtuemart_paymentmethod_id = $order['details']['BT']->virtuemart_paymentmethod_id;
 
 		$payler = new Payler($this->sandbox, $this->merchant_id);

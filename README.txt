@@ -9,4 +9,4 @@ examples     - примеры на различных языках програ�
 Дополнительно
 -------------
 
-  Модуль для Bitrix ("Малый бизнес", "Бизнес"):   http://marketplace.1c-bitrix.ru/solutions/unrealart.payler
+  Модуль для Bitrix ("Малый бизнес", "Бизнес"):   http://marketplace.1c-bitrix.ru/solutions/payler.payler

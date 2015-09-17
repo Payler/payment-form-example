@@ -97,7 +97,8 @@ class ControllerPaymentPayler extends Controller {
         }
         $key = $this->config->get('payler_key');
         $type = 'OneStep';
-        $amount = 100*$order_info ['total'];
+        //Округление, так как в OpenCart может быть больше знаков после запятой
+        $amount = round(100*$order_info ['total'], 0, PHP_ROUND_HALF_UP);
         $product = $this->language->get('text_order_desc').$order_id;
         $order_id .= '|' . time();
         

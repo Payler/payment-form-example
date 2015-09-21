@@ -105,7 +105,7 @@ echo $header;
         </tr>
         <tr>
             <td style="vertical-align: top;"><?php echo $text_return_url; ?></td>
-            <td>http://<?=$_SERVER ['HTTP_HOST']?>/index.php?route=payment/payler/result</td>
+            <td>http://<?=$_SERVER ['HTTP_HOST']?>/index.php?route=payment/payler/result&order_id={order_id}</td>
         </tr>
       </table>
     </form>

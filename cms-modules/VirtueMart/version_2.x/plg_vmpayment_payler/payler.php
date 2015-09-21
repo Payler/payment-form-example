@@ -1,13 +1,14 @@
 <?php
+
+if (!defined('_VALID_MOS') && !defined('_JEXEC'))
+	die('Direct Access to ' . basename(__FILE__) . ' is not allowed.');
+
 defined ('_JEXEC') or die('Restricted access');
 
 
 if (!class_exists ('vmPSPlugin')) {
 	require(JPATH_VM_PLUGINS . DS . 'vmpsplugin.php');
 }
-
-
-
 
 class Payler {
 	const PAYLER_STATUS_CHARGED = 'Charged';
@@ -100,6 +101,9 @@ class Payler {
 
 class plgVmPaymentPayler extends vmPSPlugin {
 
+	// instance of class
+	public static $_this = false;
+
 	function __construct (& $subject, $config) {
 		parent::__construct ($subject, $config);
 
@@ -150,19 +154,16 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		if (!($method = $this->getVmPluginMethod($order['details']['BT']->virtuemart_paymentmethod_id))) {
 			return null; // Another method was selected, do nothing
 		}
+		if (!$this->selectedThisElement($method->payment_element)) {
+			return false;
+		}
+
 		$this->merchant_id = $method->merchant_id;
 		$this->secret_word = $method->merchant_password;
 		$this->sandbox  = intval($method->sandbox);
 		$this->payment_type = 'OneStep';
 
-		if (!$this->selectedThisElement($method->payment_element)) {
-			return false;
-		}
-
-		$session = JFactory::getSession();
-		$return_context = $session->getId();
 		$order_number = $order['details']['BT']->order_number;
-		$this->logInfo('plgVmConfirmedOrder order number: '.$order_number, 'message');
 
 		if (!class_exists('VirtueMartModelOrders')) {
 			require(JPATH_VM_ADMINISTRATOR.DS.'models'.DS.'orders.php');
@@ -224,8 +225,8 @@ class plgVmPaymentPayler extends vmPSPlugin {
 			'product' => $product
 		);
 
-		$return_url = urlencode(substr(JURI::root(false, ''), 0, -1).JROUTE::_('index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on='.$order_number.'&pm='.$virtuemart_paymentmethod_id.'&Itemid='.JRequest::getInt('Itemid'), false));
-		$fail_url = urlencode(substr(JURI::root(false, ''), 0, -1).JROUTE::_('index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on='.$order_number.'&pm='.$virtuemart_paymentmethod_id.'&Itemid='.JRequest::getInt('Itemid'), false));
+		$return_url = urlencode(substr(JURI::root(false), 0, -1).JROUTE::_('index.php?option=com_virtuemart&view=pluginresponse&task=pluginresponsereceived&on='.$order_number.'&pm='.$virtuemart_paymentmethod_id.'&Itemid='.JRequest::getInt('Itemid'), false));
+		$fail_url = urlencode(substr(JURI::root(false), 0, -1).JROUTE::_('index.php?option=com_virtuemart&view=pluginresponse&task=pluginUserPaymentCancel&on='.$order_number.'&pm='.$virtuemart_paymentmethod_id.'&Itemid='.JRequest::getInt('Itemid'), false));
 		$price_final = $method->price_final ? 'true' : 'false';
 		$add_params = trim($method->add_params, '&');
 		$total_md5 = $this->to_float($totalInPaymentCurrency);
@@ -253,6 +254,7 @@ class plgVmPaymentPayler extends vmPSPlugin {
 		$cart->_dataValidated = false;
 		$cart->setCartIntoSession();
 		JRequest::setVar('html', $html);
+        return true;
 	}
 
 	/*

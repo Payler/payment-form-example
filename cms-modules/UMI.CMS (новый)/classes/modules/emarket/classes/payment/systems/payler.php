@@ -7,7 +7,7 @@
 		}
 
 		public function process($template = null) {
-		    
+
 		    $this->order->order();
 			$merchant_id = $this->object->fk_merchant_id;
 			$secret_1 = $this->object->fk_secret_1;
@@ -15,19 +15,21 @@
 			$out_amount = number_format($this->order->getActualPrice(), 2, '.', '');
 			$order_id = $this->order->id;
 			$sign = md5($merchant_id.":".$out_amount.":".$secret_1.":".$order_id);
-            
+                        
 			$this->order->setPaymentStatus('initialized');
 		    
 		    $param['formAction'] = $mode == 1 ? "https://sandbox.payler.com" : "https://secure.payler.com";
 		    $param['merchant_id'] = $merchant_id;
 		    $param['out_amount'] = $out_amount;
-			$param['order_id'] = $order_id;
+			$param['order_id'] = $this->order->payler_order_id;
 			
 			$controller = cmsController::getInstance();
 			$module = $controller->getModule("emarket");
 			
 		    if(isset($_GET['order_id'])){
-		        if ($_GET['order_id'] == $this->order->id){
+                        
+                        $real_order_id = substr($_GET['order_id'], 0, strpos($_GET['order_id'], '|'));
+		        if ($real_order_id  == $this->order->id){
 		            
 		            $Headers = array(
 			            'Content-type: application/x-www-form-urlencoded',
@@ -39,7 +41,7 @@
 		            
 		            $Data = array(
 			            "key"		=> $merchant_id,
-			            "order_id"  => $order_id
+			            "order_id"  => $_GET['order_id']
 		            );
 		            
 		            $data = http_build_query($Data);
@@ -79,7 +81,7 @@
 		        die;
 		    }
 			
-            if (!isset($_COOKIE['payler_sid'])){
+            if (!isset($this->order->payler_order_id)){
                 $Headers = array(
 			        'Content-type: application/x-www-form-urlencoded',
 			        'Cache-Control: no-cache',
@@ -89,10 +91,14 @@
 		        $Data = array(
 			        "key"		=> $merchant_id,
 			        "type"		=> 1,
-			        "order_id"	=> $order_id,
+			        "order_id"	=> $order_id.'|'.time(),
 			        "amount"	=> $out_amount * 100
 		        );
                 
+
+                        $this->order->setValue('payler_order_id',$Data["order_id"]);
+                        $this->order->commit();
+
 		        $data = http_build_query($Data);
 		        $options = array (
 			        CURLOPT_URL => $param['formAction'] . '/gapi/StartSession',
@@ -119,7 +125,6 @@
 		    } else {
                 $param['session_id'] = $_COOKIE['payler_sid'];  
 		    }
-		    
             $FORMS = Array();
             $FORMS = "<form action=". $param['formAction'] . "/gapi/Pay method='post' name='form_payler'>
             <input type='hidden' name='session_id' value=" . $param['session_id'] . " />
@@ -131,6 +136,7 @@
 
 			list($templateString) = def_module::loadTemplates("emarket/payment/payler/".$template, "form_block");
 			return def_module::parseTemplate($templateString, $param);
+
 		}
 
 		public function poll() {

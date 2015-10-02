@@ -45,5 +45,10 @@ mysql_query("INSERT INTO `cms3_object_fields` VALUES(NULL, 'fk_test_mode', 'Те
 mysql_query("SET @field = LAST_INSERT_ID()");
 mysql_query("INSERT INTO `cms3_fields_controller` VALUES (5, @field, @field_group)");
 
-echo "Compled!";
+mysql_query("SELECT @order_field_group:=id FROM `cms3_object_field_groups` WHERE `name`='order_props'");
+mysql_query("INSERT INTO `cms3_object_fields` VALUES(NULL, 'payler_order_id', 'Номер заказа в системе Payler', 0, 13, 0, 1, NULL, 0, 0, 'Номер заказа в Payler', 1, NULL, 0, 0)");
+mysql_query("SET @field = LAST_INSERT_ID()");
+mysql_query("INSERT INTO `cms3_fields_controller` VALUES (5, @field, @order_field_group)");
+
+echo "Complete!";
 ?>

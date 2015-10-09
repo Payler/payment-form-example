@@ -1,0 +1,12 @@
+<form id="payment-form" method="POST" action="{$url}" target="_top">
+    <input type="hidden" name="session_id" value="{$sessionID}">
+
+    <i class="icon16 loading"></i> <em>Перенаправление на сайт Payler для оплаты...</em>
+    <br /><br />
+    <script type="text/javascript">
+    setTimeout(function () {
+       	document.getElementById('payment-form').submit();
+    }, 3000);
+    </script>
+    <input type="submit" value="Оплатить заказ на сайте Payler">
+</form>

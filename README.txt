@@ -10,3 +10,4 @@ examples     - примеры на различных языках програ�
 -------------
 
   Модуль для Bitrix ("Малый бизнес", "Бизнес"):   http://marketplace.1c-bitrix.ru/solutions/payler.payler
+  Модуль для Юпи! (Yupe! CMS): http://yupe.ru/marketplace/35/payler

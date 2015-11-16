@@ -9,37 +9,42 @@ class Payler {
     }
     
     /**
-     * @desc Отправка POST-запроса без помощи curl.
+     * @desc Отправка POST-запроса при помощи curl.
      *
      * @param $data Массив отправляемых данных
      * @result Ассоциативный массив возвращаемых данных
      */
-    function SendPost ($data) {	
-        $json = file_get_contents($this->url, false, stream_context_create(array(
-            'http' => array(
-                'method' => 'POST',
-                'header' => 'Content-Type: application/x-www-form-urlencoded',
-                'content' => http_build_query($data)
-            )
-            )));        
+    function CurlSendPost ($data) {	
+        $headers = array(
+            'Content-type: application/x-www-form-urlencoded',
+            'Cache-Control: no-cache',
+            'charset="utf-8"',
+	);
+        
+        $data = http_build_query($data, '', '&');
 
+        $options = array (
+            CURLOPT_URL => $this->url,
+            CURLOPT_POST => 1,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_TIMEOUT => 45,
+            CURLOPT_VERBOSE => 0,
+            CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_POSTFIELDS => $data,            
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => 0,
+        );
+        
+        $ch = curl_init();
+        curl_setopt_array($ch, $options);
+	$json = curl_exec($ch);
         if ($json == false) {
-            die ('Error! ');
+            die ('Curl error: ' . curl_error($ch) . '<br>');
         }
         //Преобразуем JSON в ассоциативный массив
-        $result = json_decode($json);
-
-        if(empty($result)) {
-            return array();
-        }
-
-        return (array)$result;
-/*        return array(
-            'order_id' => $result->order_id,
-            'amount' => $result->amount,
-            'session_id' => $result->session_id
-        );
-*/
+        $result = json_decode($json, TRUE);
+	curl_close($ch);
+        
 	return $result;
     }    
     
@@ -52,7 +57,7 @@ class Payler {
     */
     public function POSTtoGateAPI ($data, $method) {
         $this->url = $this->base_url.$method;
-        $result = $this->SendPost($data);
+        $result = $this->CurlSendPost($data);
         return $result;
     }
     

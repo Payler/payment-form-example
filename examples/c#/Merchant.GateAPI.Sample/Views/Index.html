@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Тестовая страница Payler InPay</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="/Static/jquery.cookie.js"></script>
+    <script src="/Static/main.js" type="text/javascript"></script>
+</head>
+    <body style="text-align: center;">
+        <p>
+            <input type="button" value="Осуществить одностадийный платеж" id="buttonPaySession"/>
+        </p>
+        <p>
+            <input type="button" value="Осуществить двухстадийный платеж" id="buttonBlockSession"/>
+        </p>
+        <p>
+            <input type="button" value="Списать деньги за последний заказ" id="buttonCharge"/>
+        </p>
+        <p>
+            <input type="button" value="Разблокировать деньги за последний заказ" id="buttonRetrieve"/>
+        </p>
+        <p>
+            <input type="button" value="Вернуть деньги за последний заказ" id="buttonRefund"/>
+        </p>
+        <p>
+            <input type="button" value="Запросить статус оплаты последнего заказа" id="buttonGetStatus"/>
+        </p>
+        <p>
+            <input value="30000" id="fieldAmount" />
+        </p>
+        <p id="errorTxt" style="color: red;"></p>
+        <p id="successTxt" style="color: green;"></p>        
+    </body>
+</html>

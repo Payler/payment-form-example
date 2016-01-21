@@ -67,7 +67,7 @@ class pm_payler extends PaymentRoot
             'type' => 'Pay',
             'order_id' => $order->order_id.'|'.time(),
             'amount' => 100*number_format(floatval($order->order_total), 2, '.', ''),
-            'product' => substr(sprintf(_JSHOP_PAYMENT_NUMBER, $order->order_number),0,255),
+            'product' => substr(sprintf(_JSHOP_PAYMENT_NUMBER, (int)$order->order_number),0,255),
             /* 'total' => $total,
             'template' => $template,
             'lang' => $lang,
@@ -75,11 +75,14 @@ class pm_payler extends PaymentRoot
         );
         
         $session_data = $this->POSTtoGateAPI($pmconfigs, $data, "StartSession");
-        //var_dump($session_data);
+
         $session_id = $session_data['session_id'];
-        $test = $pmconfigs['payler_test_mode'];
-        $host = ($test ? "sandbox" : "secure");
-        $url = "https://" . $host . ".payler.com/gapi/Pay";
+        
+        if(isset($session_data['session_id'])) {
+           $test = $pmconfigs['payler_test_mode'];
+           $host = ($test ? "sandbox" : "secure");
+           $url = "https://" . $host . ".payler.com/gapi/Pay";
+        }
         ?>
         <html>
             <head>

@@ -110,21 +110,32 @@ function commerce_payler_redirect_form($form, &$form_state, $order, $payment_met
         'amount' => $order_wrapper->commerce_order_total->amount->value(),
     );
     $session_data = CurlSendPost($data, $url);
-    $session_id = $session_data['session_id'];
+        
+    if(isset($session_data['session_id'])) {
+        $session_id = $session_data['session_id'];        
+        
+        $form['#action'] = "https://" . $host . ".payler.com/gapi/Pay";
+
+        $form['session_id'] = array(
+            '#type' => 'hidden',
+            '#value' => $session_id,
+        );
+
+        $form['submit'] = array(
+            '#type' => 'submit',
+            '#value' => t('Pay'),
+        );
+
+        return $form;
+    }
     
-    $form['#action'] = "https://" . $host . ".payler.com/gapi/Pay";
-
-    $form['session_id'] = array(
-        '#type' => 'hidden',
-        '#value' => $session_id,
-    );
-
-    $form['submit'] = array(
-        '#type' => 'submit',
-        '#value' => t('Pay'),
-    );
-
-    return $form;
+    //If we are here something goes wrong
+    commerce_payment_redirect_pane_previous_page($order);
+        
+    //Redirect        
+    drupal_set_message('Payment session isn\'t created. Please contact the administrator','error');
+    drupal_goto('checkout/'.$order->order_id);       
+    return "";
 }
 
 /*
@@ -149,7 +160,7 @@ function commerce_payler_callback () {
     );
     $result = CurlSendPost($data, $url);
     
-    if ($result['status'] == 'Charged') {
+    if (isset($result['status']) && $result['status'] == 'Charged') {
         $paid_amount = $result['amount'];
         $transaction = commerce_payment_transaction_new('commerce_payler', $order->order_id);
         $transaction->instance_id = $payment_method['instance_id'];
@@ -167,6 +178,10 @@ function commerce_payler_callback () {
         drupal_goto('checkout/'.$order_id.'/payment/return/'.$redirect_key);        
     } else {
         commerce_payment_redirect_pane_previous_page($order);
+        
+        //Redirect        
+        drupal_set_message('Your payment can\'t be completed.','error');
+        drupal_goto('checkout/'.$order_id);        
     }
 }
 

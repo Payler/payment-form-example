@@ -121,15 +121,20 @@ if (defined('PAYMENT_NOTIFICATION')) {
 
     $session_data = json_decode($session_data, TRUE);
 
-    $session_id = $session_data['session_id'];
+    if(isset($session_data['session_id'])) {
+        $session_id = $session_data['session_id'];
 
-    $post = array();
+        $post = array();
 
-    $post['session_id'] = $session_id;
+        $post['session_id'] = $session_id;
 
-    $pay_url = $url . "Pay";
+        $pay_url = $url . "Pay";
 
-    fn_create_payment_form($pay_url, $post, 'Payler', false);
+        fn_create_payment_form($pay_url, $post, 'Payler', false);
+    } else {
+        fn_set_notification('E', fn_get_lang_var('warning'),"Не удалось провести оплату. Сообщите, пожалуйста, об ошибке администратору", true, 'Не удалось провести оплату. Сообщите, пожалуйста, об ошибке администратору');
+        fn_order_placement_routines('route', $_order_id);
+    }
 }
 
 exit;

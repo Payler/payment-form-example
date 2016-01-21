@@ -31,8 +31,12 @@
 
 8. После тестовой оплаты вас перекинет на адрес вида: http://localhost:7820/Complete-order_id={order_id}
    Скопируйте значение {order_id} и вставьте в адрес: http://ваш_домен/payler/callback?order_id={order_id}
+   (если не включен CleanURL, то http://<ваш_домен>/?q=payler/callback&order_id={order_id})
    Затем перейдите по этому адресу в браузере.
    После этого в истории заказа должна появиться запись об успешной оплате.
 
 Для настройки боевого доступа используйте адрес http://ваш_домен/payler/callback?order_id={order_id}
+(если не включен CleanURL, то http://<ваш_домен>/?q=payler/callback&order_id={order_id})
 в качестве callback_url.  Его запросят у вас сотрудники Payler.
+
+Если у вас возникнут вопросы, можете обратиться в службу поддержки Пэйлер: 24@payler.com

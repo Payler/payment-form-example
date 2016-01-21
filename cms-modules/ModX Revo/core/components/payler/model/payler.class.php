@@ -64,7 +64,7 @@ class Payler {
         $data = array('key'      => $this->key, 
                       'order_id' => $params['order_id'],
                       );
-        $result = __POSTtoGateAPI ($data, 'GetStatus');
+        $result = $this->__POSTtoGateAPI ($data, 'GetStatus');
         if(!isset($result['status'])) {
             die ('Не удалось получить статус заказа');
         };

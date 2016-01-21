@@ -12,7 +12,7 @@ $payler_status = $payler->GetStatus(array('order_id' => $p_order_id));
 //переводим order_id в тот, что используется в магазине
 $order_id = $payler->PaylerOrderID_To_ModxOrderID($p_order_id);
 
-if(payler_status['status'] == 'Charged') {
+if($payler_status['status'] == 'Charged') {
 
     //Заказ успешно оплачен, изменить состояние заказа
     //И совершить какие-то действия - сообщить пользователю/перевести на другую страницу
